@@ -3,14 +3,6 @@ import re
 import os
 import sys
 
-"""
-Columns:
-    1. product name (variable-length string)
-    2. type ('CPU' or 'GPU', fixed-size string, 3 ASCII characters)
-    3. date (fixed-size string, 10 ASCII characters)
-    4. quantity of transistor (variable-length string)
-"""
-
 
 def record_structure(ls):
     """
@@ -93,12 +85,8 @@ def record_structure(ls):
 
 def main(filepath):
     # Initialize variables
-    blocks = []
-    free_space_map = []
-    block = ["0", "0", "0", "9", "9", "9"] + ["." for _ in range(1000 - 6)]  # empty block
-    real_free_space = 1000 - 6  # the true number of free bytes
-    free_space = 15  # the value for free-space map
-    num_record = 0  # the number of records in the current block
+    blocks = [["0", "0", "0", "9", "9", "9"] + ["." for _ in range(1000 - 6)]]
+    free_space_map = [15]
 
     with open(filepath, 'r') as read_obj:
         csv_reader = reader(read_obj)
@@ -107,26 +95,34 @@ def main(filepath):
         for row in csv_reader:
             total_record += 1
             record = record_structure(row)  # transfer the list of field values to the record structure in characters
-            if len(record) > free_space / 16 * 1000:  # check if new block is needed
-                blocks += [''.join(block)]  # save the current block
-                free_space_map += [free_space]  # save the current free space value
-                block = ["0", "0", "0", "9", "9", "9"] + ["." for _ in range(1000 - 6)]  # create empty block
-                real_free_space = 1000 - 6  # reset the real number of free bytes
-                num_record = 0  # reset the number of records in the current block
-            free_space_end = int(''.join(block[3:6]))
-            block[(free_space_end + 1 - len(record)): (free_space_end + 1)] = [*record]  # insert record structure
-            block[3: 6] = [*str(free_space_end - len(record))]  # adjust free space end
-            block[(6 + num_record * 6): (9 + num_record * 6)] = [*"%03d" % (free_space_end + 1 - len(record))]  # add record offset
-            block[(9 + num_record * 6): (12 + num_record * 6)] = [*"%03d" % len(record)]  # add record length
-            num_record += 1
-            block[0: 3] = [*"%03d" % num_record]  # update the number of records in the block
-            real_free_space -= (len(record) + 6)  # update the real number of free bytes
-            free_space = int(real_free_space / 1000 * 16)  # update the value for free-space map
-
-        blocks += [''.join(block)]
-        free_space_map += [free_space]
+            insert = False
+            while not insert:
+                for i in range(len(blocks)):
+                    if len(record) > free_space_map[i] / 16 * 1000:
+                        continue
+                    block = blocks[i]
+                    num_record = int(''.join(block[:3]))
+                    free_space_end = int(''.join(block[3:6]))
+                    block[(free_space_end + 1 - len(record)): (free_space_end + 1)] = [*record]  # insert record structure
+                    block[3: 6] = [*str(free_space_end - len(record))]  # adjust free space end
+                    block[(6 + num_record * 6): (9 + num_record * 6)] = [*"%03d" % (free_space_end + 1 - len(record))]  # add record offset
+                    block[(9 + num_record * 6): (12 + num_record * 6)] = [*"%03d" % len(record)]  # add record length
+                    num_record += 1
+                    block[0: 3] = [*"%03d" % num_record]  # update the number of records in the block
+                    free_space = free_space_end - len(record) - (num_record * 6 + 6 - 1)
+                    free_space_map[i] = int(free_space / 1000 * 16)  # update the value for free-space map
+                    insert = True
+                    break
+                if insert:
+                    break
+                else:
+                    blocks += [["0", "0", "0", "9", "9", "9"] + ["." for _ in range(1000 - 6)]]
+                    free_space_map += [15]
 
     # Write blocks into a file
+    for i in range(len(blocks)):
+        blocks[i] = ''.join(blocks[i])
+
     with open(r'dbfile.txt', 'w') as fp:
         for block in blocks:
             fp.write("%s\n" % block)
