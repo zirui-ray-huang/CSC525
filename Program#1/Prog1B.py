@@ -58,9 +58,9 @@ def records_in_block(block):
         record = tuple_in_record(block[offset: (offset + length)])  # extract the field values for each record
         records += [record]
 
-    print("{:<40} {:<5} {:<15} {:<5}".format('Product', 'Type', "Release Date", "Transistors (million)"))
-    for record in records:
-        print("{:<40} {:<5} {:<15} {:<5}".format(record[0], record[1], record[2], record[3]))
+    print("{:<10} {:<40} {:<5} {:<15} {:<5}".format('#', 'Product', 'Type', "Release Date", "Transistors (million)"))
+    for num, record in enumerate(records):
+        print("{:<10} {:<40} {:<5} {:<15} {:<5}".format(num + 1, record[0], record[1], record[2], record[3]))
 
 
 def main(filepath):
@@ -72,23 +72,25 @@ def main(filepath):
     Part 2
     """
     num_blocks = 0
-    num_records = 0
+    total_num_records = 0
     free_space = []
+    num_records = []
     for block in blocks:
         # 1. The total quantities of blocks and records contained within the DB file.
         num_blocks += 1
-        num_records += int(block[:3])
+        total_num_records += int(block[:3])
+        num_records += [int(block[:3])]
 
         # 2. For each block, display its quantity of free space bytes.
         free_space += [int(block[3: 6]) - (int(block[:3]) * 6 + 6 - 1)]
 
     print("The total number of blocks: %d" % num_blocks)
-    print("The total number of records: %d" % num_records)
+    print("The total number of records: %d" % total_num_records)
     print("")
     print("Quantity of free space bytes: ")
-    print("{:<8} {:<5}".format('Block#', '#Bytes'))
+    print("{:<8} {:<10} {:<10}".format('Block#', '#Bytes', "#Records"))
     for number, num_bytes in enumerate(free_space):
-        print("{:<8} {:<5}".format(number, num_bytes))
+        print("{:<8} {:<10} {:<10}".format(number, num_bytes, num_records[number]))
     print("")
 
     # 3. The field values of the records held by the first block, displayed in insertion order (that is, the first
@@ -134,9 +136,9 @@ def main(filepath):
 
         # print the records satisfying the filtering criteria
         print("Records with # Transistors between %d and %d" % (m, n))
-        print("{:<40} {:<5} {:<15} {:<5}".format('Product', 'Type', "Release Date", "Transistors (million)"))
-        for record in valid_records:
-            print("{:<40} {:<5} {:<15} {:<5}".format(record[0], record[1], record[2], record[3]))
+        print("{:<10} {:<40} {:<5} {:<15} {:<5}".format('#', 'Product', 'Type', "Release Date", "Transistors (million)"))
+        for num, record in enumerate(valid_records):
+            print("{:<10} {:<40} {:<5} {:<15} {:<5}".format(num + 1, record[0], record[1], record[2], record[3]))
         print("")
 
 
