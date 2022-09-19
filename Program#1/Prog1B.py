@@ -82,6 +82,15 @@ def main(filepath):
         # 2. For each block, display its quantity of free space bytes.
         free_space += [int(block[3: 6]) - (int(block[:3]) * 6 + 6 - 1)]
 
+    print("The total number of blocks: %d" % num_blocks)
+    print("The total number of records: %d" % num_records)
+    print("")
+    print("Quantity of free space bytes: ")
+    print("{:<8} {:<5}".format('Block#', '#Bytes'))
+    for number, num_bytes in enumerate(free_space):
+        print("{:<8} {:<5}".format(number, num_bytes))
+    print("")
+
     # 3. The field values of the records held by the first block, displayed in insertion order (that is, the first
     # record displayed is the first record inserted)
     print("Records in the first block: ")
