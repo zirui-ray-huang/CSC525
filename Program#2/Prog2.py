@@ -168,7 +168,7 @@ def main(filepath, field, r, w):
     lines = [header] + lines
     filename_old = os.path.basename(filepath)
     filename_new = '.'.join(filename_old.split('.')[:-1]) + '-sorted.' + filename_old.split('.')[-1]
-    with open(os.path.join(os.path.dirname(filepath), filename_new), 'w') as fp:
+    with open(filename_new, 'w') as fp:
         for sublist in lines:
             fp.write("%s" % sublist)
 
