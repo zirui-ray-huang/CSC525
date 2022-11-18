@@ -60,6 +60,7 @@ reference: https://www.geeksforgeeks.org/detect-cycle-in-a-graph/
            https://www.geeksforgeeks.org/python-program-for-topological-sorting/
 """
 
+
 class Graph:
     def __init__(self, vertices):
         """
@@ -261,13 +262,10 @@ def task_one(filename):
     stack = g.topologicalSort()
     stack = [str(item) for item in stack]
     ordering = []
-    for ts in transactions:
-        if ts not in not_commit:
-            ordering += [str(ts)]
     for item in stack:
-        if item not in ordering and int(item) in transactions:
+        if int(item) in not_commit and int(item) in transactions:
             ordering += [item]
-    print("The transactions can be serializable to this order: [%s]" % ','.join(ordering))
+    print("The uncommitted transactions can be serializable to this order: [%s]" % ','.join(ordering))
 
 
 def task_two(filename, number, lowerbound, upperbound):
