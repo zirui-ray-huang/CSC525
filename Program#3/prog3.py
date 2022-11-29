@@ -305,14 +305,14 @@ def task_two(filename, number, lowerbound, upperbound):
     transactions = set([int(line.split()[0][1:]) for line in lines])
     print("Schedule involves the following transactions: [%s]" % (','.join(str(item) for item in transactions)))
 
-    lines_by_transaction = [[] for _ in range(len(transactions) + 1)]
+    lines_by_transaction = [[] for _ in range(max(transactions) + 1)]
     for line in lines:
         lines_by_transaction[int(line.split(' ')[0][1:])] += [line]
 
     res = 0
     for _ in range(number):
         new_lines = []
-        lines_by_transaction_start = [0 for _ in range(len(transactions) + 1)]
+        lines_by_transaction_start = [0 for _ in range(max(transactions) + 1)]
         transactions_available = transactions.copy()
         while True:
             if len(transactions_available) == 0:
